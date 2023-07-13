@@ -1,58 +1,82 @@
 package gildedrose
 
-type Item struct {
-	Name            string
-	SellIn, Quality int
+import (
+	"github.com/berdebotond/gildedrose_go/pkg"
+)
+
+func UpdateQuality(items []*pkg.Item) {
+	for _, item := range items {
+		updateItemQuality(item)
+	}
 }
 
-func UpdateQuality(items []*Item) {
-	for i := 0; i < len(items); i++ {
-
-		if items[i].Name != "Aged Brie" && items[i].Name != "Backstage passes to a TAFKAL80ETC concert" {
-			if items[i].Quality > 0 {
-				if items[i].Name != "Sulfuras, Hand of Ragnaros" {
-					items[i].Quality = items[i].Quality - 1
-				}
-			}
-		} else {
-			if items[i].Quality < 50 {
-				items[i].Quality = items[i].Quality + 1
-				if items[i].Name == "Backstage passes to a TAFKAL80ETC concert" {
-					if items[i].SellIn < 11 {
-						if items[i].Quality < 50 {
-							items[i].Quality = items[i].Quality + 1
-						}
-					}
-					if items[i].SellIn < 6 {
-						if items[i].Quality < 50 {
-							items[i].Quality = items[i].Quality + 1
-						}
-					}
-				}
-			}
-		}
-
-		if items[i].Name != "Sulfuras, Hand of Ragnaros" {
-			items[i].SellIn = items[i].SellIn - 1
-		}
-
-		if items[i].SellIn < 0 {
-			if items[i].Name != "Aged Brie" {
-				if items[i].Name != "Backstage passes to a TAFKAL80ETC concert" {
-					if items[i].Quality > 0 {
-						if items[i].Name != "Sulfuras, Hand of Ragnaros" {
-							items[i].Quality = items[i].Quality - 1
-						}
-					}
-				} else {
-					items[i].Quality = items[i].Quality - items[i].Quality
-				}
-			} else {
-				if items[i].Quality < 50 {
-					items[i].Quality = items[i].Quality + 1
-				}
-			}
-		}
+func updateItemQuality(item *pkg.Item) {
+	switch item.Name {
+	case "Aged Brie":
+		updateAgedBrie(item)
+	case "Backstage passes to a TAFKAL80ETC concert":
+		updateBackstagePasses(item)
+	case "Sulfuras, Hand of Ragnaros":
+		// Legendary item, do nothing
+	case "Conjured":
+		updateConjured(item)
+	default:
+		updateNormal(item)
 	}
 
+	// Ensure quality is within bounds
+	if item.Quality < 0 {
+		item.Quality = 0
+	} else if item.Quality > 50 && item.Name != "Sulfuras, Hand of Ragnaros" {
+		item.Quality = 50
+	}
+
+	// Decrease sell-in value for all items except Sulfuras
+	if item.Name != "Sulfuras, Hand of Ragnaros" {
+		item.SellIn--
+	}
+}
+
+func updateBackstagePasses(item *pkg.Item) {
+	if item.SellIn <= 0 {
+		item.Quality = 0
+	} else if item.SellIn <= 5 {
+		item.Quality += 3
+	} else if item.SellIn <= 10 {
+		item.Quality += 2
+	} else {
+		item.Quality++
+	}
+}
+
+func updateConjured(item *pkg.Item) {
+	if item.SellIn <= 0 {
+		item.Quality -= 4
+	} else {
+		item.Quality -= 2
+	}
+}
+
+func updateAgedBrie(item *pkg.Item) {
+	if item.SellIn > 0 {
+		item.Quality++
+	} else {
+		item.Quality += 2
+	}
+
+	if item.Quality > 50 {
+		item.Quality = 50
+	}
+}
+
+func updateNormal(item *pkg.Item) {
+	if item.SellIn > 0 {
+		item.Quality--
+	} else {
+		item.Quality -= 2
+	}
+
+	if item.Quality < 0 {
+		item.Quality = 0
+	}
 }
