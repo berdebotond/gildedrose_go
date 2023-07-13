@@ -3,12 +3,13 @@ package gildedrose_test
 import (
 	"testing"
 
-	"github.com/emilybache/gildedrose-refactoring-kata/gildedrose"
+	gildedrose "github.com/berdebotond/gildedrose_go/gildedrose"
+	pkg "github.com/berdebotond/gildedrose_go/pkg"
 )
 
 func Test_Foo(t *testing.T) {
-	var items = []*gildedrose.Item{
-		{"foo", 0, 0},
+	var items = []*pkg.Item{
+		{Name: "foo", SellIn: 0, Quality: 0},
 	}
 
 	gildedrose.UpdateQuality(items)
